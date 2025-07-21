@@ -1,0 +1,72 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36221.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{BC6335F6-CA9C-40DA-B893-267DFAC5DF13}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{85B5502B-E664-476F-8245-03D577165EE5}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UrbanManagement.Api", "UrbanManagement.Api", "{402D8611-F785-4004-8BAA-957EE8DBFB9C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UrbanManagement.Infrastructure", "UrbanManagement.Infrastructure", "{C7685C70-A300-47DA-BF74-0B2EEFB446DC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UrbanManagement.Domain", "UrbanManagement.Domain", "{3F3757BC-6CF3-4800-99AC-B2FAC388EFA2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UrbanManagement.Application", "UrbanManagement.Application", "{A82A241A-ECD2-40D2-BD21-A38F9A78A923}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrbanManagement.Api", "src\UrbanManagement.Api\UrbanManagement.Api.csproj", "{85315F88-91E3-53F6-B5B3-C7B863FDBD67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrbanManagement.Application", "src\UrbanManagement.Application\UrbanManagement.Application.csproj", "{9C98BE28-3B7D-D673-7E37-78D52762CDCB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrbanManagement.Domain", "src\UrbanManagement.Domain\UrbanManagement.Domain.csproj", "{1B990B47-A7B5-16EE-24F7-52542E3EDC4B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UrbanManagement.Infrastructure", "src\UrbanManagement.Infrastructure\UrbanManagement.Infrastructure.csproj", "{70B23F3B-51F2-BE35-BA49-EDEA22B4BB60}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{85315F88-91E3-53F6-B5B3-C7B863FDBD67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85315F88-91E3-53F6-B5B3-C7B863FDBD67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85315F88-91E3-53F6-B5B3-C7B863FDBD67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85315F88-91E3-53F6-B5B3-C7B863FDBD67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C98BE28-3B7D-D673-7E37-78D52762CDCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C98BE28-3B7D-D673-7E37-78D52762CDCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C98BE28-3B7D-D673-7E37-78D52762CDCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C98BE28-3B7D-D673-7E37-78D52762CDCB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B990B47-A7B5-16EE-24F7-52542E3EDC4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B990B47-A7B5-16EE-24F7-52542E3EDC4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B990B47-A7B5-16EE-24F7-52542E3EDC4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B990B47-A7B5-16EE-24F7-52542E3EDC4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70B23F3B-51F2-BE35-BA49-EDEA22B4BB60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70B23F3B-51F2-BE35-BA49-EDEA22B4BB60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70B23F3B-51F2-BE35-BA49-EDEA22B4BB60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70B23F3B-51F2-BE35-BA49-EDEA22B4BB60}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{402D8611-F785-4004-8BAA-957EE8DBFB9C} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{C7685C70-A300-47DA-BF74-0B2EEFB446DC} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{3F3757BC-6CF3-4800-99AC-B2FAC388EFA2} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{A82A241A-ECD2-40D2-BD21-A38F9A78A923} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{85315F88-91E3-53F6-B5B3-C7B863FDBD67} = {402D8611-F785-4004-8BAA-957EE8DBFB9C}
+		{9C98BE28-3B7D-D673-7E37-78D52762CDCB} = {A82A241A-ECD2-40D2-BD21-A38F9A78A923}
+		{1B990B47-A7B5-16EE-24F7-52542E3EDC4B} = {3F3757BC-6CF3-4800-99AC-B2FAC388EFA2}
+		{70B23F3B-51F2-BE35-BA49-EDEA22B4BB60} = {C7685C70-A300-47DA-BF74-0B2EEFB446DC}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E676ACC2-AA56-40EA-B8FC-E44F6CEEE11E}
+	EndGlobalSection
+EndGlobal
