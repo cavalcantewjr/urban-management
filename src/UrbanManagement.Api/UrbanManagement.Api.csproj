@@ -14,4 +14,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\UrbanManagement.Application\UrbanManagement.Application.csproj" />
+    <ProjectReference Include="..\UrbanManagement.Infrastructure\UrbanManagement.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
