@@ -12,6 +12,10 @@ namespace UrbanManagement.Api
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddLogging();
+
+            builder.Services.AddScoped<UrbanManagement.Application.Interfaces.IIncidentService, UrbanManagement.Application.Services.IncidentService>();
+            builder.Services.AddSingleton<UrbanManagement.Application.Interfaces.IIncidentRepository, UrbanManagement.Infrastructure.Repositories.InMemoryIncidentRepository>();
 
             var app = builder.Build();
 

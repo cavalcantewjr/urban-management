@@ -1,70 +1,117 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using UrbanManagement.Api.Responses;
+using UrbanManagement.Application.DTOs;
+using UrbanManagement.Application.Interfaces;
 
 namespace UrbanManagement.Api.Controllers.Incident;
 
 [ApiController]
-[Route("api/incidents")]
+[Route("api/v1/incidents")]
 public class IncidentController : ControllerBase
 {
-    // GET: api/incidents
+    private readonly IIncidentService _incidentService;
+    private readonly ILogger<IncidentController> _logger;
+
+    public IncidentController(IIncidentService incidentService, ILogger<IncidentController> logger)
+    {
+        _incidentService = incidentService ?? throw new ArgumentNullException(nameof(incidentService));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
     [HttpGet]
-    [ProducesResponseType(typeof(List<string>), StatusCodes.Status200OK)]
-    public IActionResult GetIncidents()
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyCollection<IncidentDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetIncidents(CancellationToken cancellationToken)
     {
-        var incidents = new List<string> { "Chamado 1", "Chamado 2", "Chamado 3" };
-        return Ok(incidents);
+        var incidents = await _incidentService.GetAllAsync(cancellationToken);
+        return Ok(ApiResponse<IReadOnlyCollection<IncidentDto>>.Success(incidents));
     }
 
-    // GET: api/incidents/{id}
-    [HttpGet("{id}")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult GetIncidentById(int id)
+    [HttpGet("{id:guid}")]
+    [ProducesResponseType(typeof(ApiResponse<IncidentDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<IncidentDto>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetIncidentById(Guid id, CancellationToken cancellationToken)
     {
-        var incident = $"Chamado {id}";
-        if (id <= 0)
+        var incident = await _incidentService.GetByIdAsync(id, cancellationToken);
+        if (incident is null)
         {
-            return NotFound();
+            return NotFound(ApiResponse<IncidentDto>.Failure(new ApiError("INCIDENT_NOT_FOUND", $"Incidente '{id}' não encontrado.")));
         }
-        return Ok(incident);
+
+        return Ok(ApiResponse<IncidentDto>.Success(incident));
     }
 
-    // POST: api/incidents
+    [HttpGet("area/{areaCode}")]
+    [ProducesResponseType(typeof(ApiResponse<IReadOnlyCollection<IncidentDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetIncidentsByArea(string areaCode, CancellationToken cancellationToken)
+    {
+        var incidents = await _incidentService.GetByAreaAsync(areaCode, cancellationToken);
+        return Ok(ApiResponse<IReadOnlyCollection<IncidentDto>>.Success(incidents));
+    }
+
     [HttpPost]
-    [ProducesResponseType(typeof(string), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public IActionResult CreateIncident([FromBody] string incident)
+    [ProducesResponseType(typeof(ApiResponse<IncidentDto>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<IncidentDto>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateIncident([FromBody] CreateIncidentRequest request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(incident))
+        if (request is null)
         {
-            return BadRequest("incident cannot be empty.");
+            return BadRequest(ApiResponse<IncidentDto>.Failure(new ApiError("INVALID_PAYLOAD", "Payload inválido.")));
         }
-        return CreatedAtAction(nameof(GetIncidentById), new { id = 1 }, incident);
+
+        try
+        {
+            var incident = await _incidentService.CreateAsync(request, cancellationToken);
+            return CreatedAtAction(nameof(GetIncidentById), new { id = incident.Id }, ApiResponse<IncidentDto>.Success(incident));
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Falha ao criar incidente.");
+            return BadRequest(ApiResponse<IncidentDto>.Failure(new ApiError("INVALID_INCIDENT_DATA", ex.Message)));
+        }
     }
 
-    // PUT: api/incidents/{id}
-    [HttpPut("{id}")]
+    [HttpPut("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public IActionResult UpdateIncident(int id, [FromBody] string incident)
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateIncident(Guid id, [FromBody] UpdateIncidentRequest request, CancellationToken cancellationToken)
     {
-        if (id <= 0 || string.IsNullOrEmpty(incident))
+        if (request is null)
         {
-            return BadRequest("Invalid incident data.");
+            return BadRequest(ApiResponse<object>.Failure(new ApiError("INVALID_PAYLOAD", "Payload inválido.")));
         }
-        return NoContent();
+
+        try
+        {
+            await _incidentService.UpdateAsync(id, request, cancellationToken);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Falha ao atualizar incidente {IncidentId}.", id);
+            return BadRequest(ApiResponse<object>.Failure(new ApiError("INVALID_INCIDENT_DATA", ex.Message)));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            _logger.LogInformation(ex, "Incidente {IncidentId} não encontrado.", id);
+            return NotFound(ApiResponse<object>.Failure(new ApiError("INCIDENT_NOT_FOUND", ex.Message)));
+        }
     }
 
-    // DELETE: api/incidents/{id}
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult DeleteIncident(int id)
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteIncident(Guid id, CancellationToken cancellationToken)
     {
-        if (id <= 0)
+        try
         {
-            return NotFound();
+            await _incidentService.DeleteAsync(id, cancellationToken);
+            return NoContent();
         }
-        return NoContent();
+        catch (KeyNotFoundException ex)
+        {
+            _logger.LogInformation(ex, "Incidente {IncidentId} não encontrado para exclusão.", id);
+            return NotFound(ApiResponse<object>.Failure(new ApiError("INCIDENT_NOT_FOUND", ex.Message)));
+        }
     }
 }

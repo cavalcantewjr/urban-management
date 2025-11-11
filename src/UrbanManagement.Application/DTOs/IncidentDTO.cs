@@ -1,5 +1,31 @@
-﻿namespace UrbanManagement.Application.DTOs;
+﻿using System;
+using UrbanManagement.Domain.Entities;
 
-public class IncidentDTO
+namespace UrbanManagement.Application.DTOs;
+
+public record IncidentDto(
+    Guid Id,
+    string Title,
+    string Description,
+    string AreaCode,
+    string Status,
+    DateTime CreatedAt,
+    DateTime? UpdatedAt)
 {
+    public static IncidentDto FromEntity(Incident incident)
+    {
+        if (incident is null)
+        {
+            throw new ArgumentNullException(nameof(incident));
+        }
+
+        return new IncidentDto(
+            incident.Id,
+            incident.Title,
+            incident.Description,
+            incident.AreaCode,
+            incident.Status,
+            incident.CreatedAt,
+            incident.UpdatedAt);
+    }
 }
