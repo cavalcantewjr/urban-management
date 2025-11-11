@@ -1,3 +1,7 @@
+using UrbanManagement.Application.Interfaces;
+using UrbanManagement.Application.Services;
+using UrbanManagement.Infrastructure.Repositories;
+
 namespace UrbanManagement.Api
 {
     public class Program
@@ -14,8 +18,10 @@ namespace UrbanManagement.Api
             builder.Services.AddSwaggerGen();
             builder.Services.AddLogging();
 
-            builder.Services.AddScoped<UrbanManagement.Application.Interfaces.IIncidentService, UrbanManagement.Application.Services.IncidentService>();
-            builder.Services.AddSingleton<UrbanManagement.Application.Interfaces.IIncidentRepository, UrbanManagement.Infrastructure.Repositories.InMemoryIncidentRepository>();
+            builder.Services.AddScoped<IIncidentService, IncidentService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddSingleton<IIncidentRepository, InMemoryIncidentRepository>();
+            builder.Services.AddSingleton<IUserRepository, InMemoryUserRepository>();
 
             var app = builder.Build();
 

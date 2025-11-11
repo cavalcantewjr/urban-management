@@ -6,16 +6,19 @@ using System.Threading.Tasks;
 using UrbanManagement.Application.DTOs;
 using UrbanManagement.Application.Interfaces;
 using UrbanManagement.Domain.Entities;
+using UrbanManagement.Domain.Enums;
 
 namespace UrbanManagement.Application.Services;
 
 public class IncidentService : IIncidentService
 {
     private readonly IIncidentRepository _incidentRepository;
+    private readonly IUserRepository _userRepository;
 
-    public IncidentService(IIncidentRepository incidentRepository)
+    public IncidentService(IIncidentRepository incidentRepository, IUserRepository userRepository)
     {
         _incidentRepository = incidentRepository ?? throw new ArgumentNullException(nameof(incidentRepository));
+        _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
     }
 
     public async Task<IReadOnlyCollection<IncidentDto>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -54,6 +57,13 @@ public class IncidentService : IIncidentService
         }
 
         var incident = request.ToEntity();
+
+        if (request.AssignedToUserId.HasValue)
+        {
+            var assignedUser = await _userRepository.GetByIdAsync(request.AssignedToUserId.Value, cancellationToken);
+            ValidateAssignableUser(assignedUser, request.AssignedToUserId.Value);
+        }
+
         var createdIncident = await _incidentRepository.AddAsync(incident, cancellationToken);
         return IncidentDto.FromEntity(createdIncident);
     }
@@ -81,6 +91,13 @@ public class IncidentService : IIncidentService
         incident.UpdateDetails(request.Title, request.Description, request.AreaCode);
         incident.ChangeStatus(request.Status);
 
+        if (request.AssignedToUserId.HasValue)
+        {
+            var assignedUser = await _userRepository.GetByIdAsync(request.AssignedToUserId.Value, cancellationToken);
+            ValidateAssignableUser(assignedUser, request.AssignedToUserId.Value);
+            incident.AssignTo(request.AssignedToUserId.Value);
+        }
+
         await _incidentRepository.UpdateAsync(incident, cancellationToken);
     }
 
@@ -98,6 +115,58 @@ public class IncidentService : IIncidentService
         }
 
         await _incidentRepository.DeleteAsync(id, cancellationToken);
+    }
+
+    public async Task AssignAsync(Guid incidentId, AssignIncidentRequest request, CancellationToken cancellationToken = default)
+    {
+        if (incidentId == Guid.Empty)
+        {
+            throw new ArgumentException("Id do incidente é obrigatório.", nameof(incidentId));
+        }
+
+        if (request is null)
+        {
+            throw new ArgumentNullException(nameof(request));
+        }
+
+        request.EnsureIsValid();
+
+        var incident = await _incidentRepository.GetByIdAsync(incidentId, cancellationToken);
+        if (incident is null)
+        {
+            throw new KeyNotFoundException($"Incidente '{incidentId}' não encontrado.");
+        }
+
+        var requester = await _userRepository.GetByIdAsync(request.RequestedByUserId, cancellationToken);
+        if (requester is null)
+        {
+            throw new InvalidOperationException($"Usuário solicitante '{request.RequestedByUserId}' não foi encontrado.");
+        }
+
+        if (requester.Role != UserRole.Admin)
+        {
+            throw new UnauthorizedAccessException("Somente usuários administradores podem atribuir incidentes.");
+        }
+
+        var assignee = await _userRepository.GetByIdAsync(request.AssignedUserId, cancellationToken);
+        ValidateAssignableUser(assignee, request.AssignedUserId);
+
+        incident.AssignTo(request.AssignedUserId);
+
+        await _incidentRepository.UpdateAsync(incident, cancellationToken);
+    }
+
+    private static void ValidateAssignableUser(User? user, Guid userId)
+    {
+        if (user is null)
+        {
+            throw new KeyNotFoundException($"Usuário '{userId}' não encontrado.");
+        }
+
+        if (user.Role != UserRole.Member)
+        {
+            throw new InvalidOperationException("Somente integrantes podem receber incidentes.");
+        }
     }
 }
 

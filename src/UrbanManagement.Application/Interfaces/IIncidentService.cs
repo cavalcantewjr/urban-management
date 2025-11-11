@@ -19,5 +19,7 @@ public interface IIncidentService
     Task UpdateAsync(Guid id, UpdateIncidentRequest request, CancellationToken cancellationToken = default);
 
     Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task AssignAsync(Guid incidentId, AssignIncidentRequest request, CancellationToken cancellationToken = default);
 }
 

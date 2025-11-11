@@ -98,6 +98,45 @@ public class IncidentController : ControllerBase
         }
     }
 
+    [HttpPatch("{id:guid}/assignment")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AssignIncident(Guid id, [FromBody] AssignIncidentRequest request, CancellationToken cancellationToken)
+    {
+        if (request is null)
+        {
+            return BadRequest(ApiResponse<object>.Failure(new ApiError("INVALID_PAYLOAD", "Payload inválido.")));
+        }
+
+        try
+        {
+            await _incidentService.AssignAsync(id, request, cancellationToken);
+            return NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "Falha ao atribuir incidente {IncidentId}.", id);
+            return BadRequest(ApiResponse<object>.Failure(new ApiError("INVALID_ASSIGNMENT_DATA", ex.Message)));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "Usuário não autorizado a atribuir incidente {IncidentId}.", id);
+            return StatusCode(StatusCodes.Status403Forbidden, ApiResponse<object>.Failure(new ApiError("ASSIGNMENT_NOT_ALLOWED", ex.Message)));
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Regra de atribuição inválida para incidente {IncidentId}.", id);
+            return BadRequest(ApiResponse<object>.Failure(new ApiError("INVALID_ASSIGNMENT_RULE", ex.Message)));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            _logger.LogInformation(ex, "Entidade não encontrada ao atribuir incidente {IncidentId}.", id);
+            return NotFound(ApiResponse<object>.Failure(new ApiError("ENTITY_NOT_FOUND", ex.Message)));
+        }
+    }
+
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

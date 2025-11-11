@@ -2,7 +2,7 @@ using System;
 
 namespace UrbanManagement.Application.DTOs;
 
-public record UpdateIncidentRequest(string Title, string Description, string AreaCode, string Status)
+public record UpdateIncidentRequest(string Title, string Description, string AreaCode, string Status, Guid? AssignedToUserId = null)
 {
     public void EnsureIsValid()
     {
@@ -24,6 +24,11 @@ public record UpdateIncidentRequest(string Title, string Description, string Are
         if (string.IsNullOrWhiteSpace(Status))
         {
             throw new ArgumentException("Status é obrigatório.", nameof(Status));
+        }
+
+        if (AssignedToUserId.HasValue && AssignedToUserId.Value == Guid.Empty)
+        {
+            throw new ArgumentException("Usuário atribuído inválido.", nameof(AssignedToUserId));
         }
     }
 }

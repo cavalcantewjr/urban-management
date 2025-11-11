@@ -80,7 +80,8 @@ public class InMemoryIncidentRepository : IIncidentRepository
             incident.AreaCode,
             incident.Status,
             incident.CreatedAt,
-            incident.UpdatedAt);
+            incident.UpdatedAt,
+            incident.AssignedToUserId);
     }
 }
 

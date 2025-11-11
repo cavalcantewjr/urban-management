@@ -12,6 +12,7 @@ public class Incident
     public string Description { get; private set; }
     public string AreaCode { get; private set; }
     public string Status { get; private set; }
+    public Guid? AssignedToUserId { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 
@@ -23,7 +24,7 @@ public class Incident
         Status = string.Empty;
     }
 
-    public Incident(string title, string description, string areaCode, string status = "registered")
+    public Incident(string title, string description, string areaCode, string status = "registered", Guid? assignedToUserId = null)
     {
         if (string.IsNullOrWhiteSpace(title))
         {
@@ -45,16 +46,22 @@ public class Incident
             throw new ArgumentException("Status do incidente é obrigatório.", nameof(status));
         }
 
+        if (assignedToUserId.HasValue && assignedToUserId.Value == Guid.Empty)
+        {
+            throw new ArgumentException("Identificador do usuário atribuído é inválido.", nameof(assignedToUserId));
+        }
+
         Id = Guid.NewGuid();
         Title = title;
         Description = description;
         AreaCode = areaCode;
         Status = status;
+        AssignedToUserId = assignedToUserId;
         CreatedAt = DateTime.UtcNow;
     }
 
-    public Incident(Guid id, string title, string description, string areaCode, string status, DateTime createdAt, DateTime? updatedAt = null)
-        : this(title, description, areaCode, status)
+    public Incident(Guid id, string title, string description, string areaCode, string status, DateTime createdAt, DateTime? updatedAt = null, Guid? assignedToUserId = null)
+        : this(title, description, areaCode, status, assignedToUserId)
     {
         Id = id == default ? Guid.NewGuid() : id;
         CreatedAt = createdAt == default ? DateTime.UtcNow : createdAt;
@@ -93,6 +100,26 @@ public class Incident
 
         Status = status;
         Touch();
+    }
+
+    public void AssignTo(Guid userId)
+    {
+        if (userId == Guid.Empty)
+        {
+            throw new ArgumentException("Usuário atribuído é obrigatório.", nameof(userId));
+        }
+
+        AssignedToUserId = userId;
+        Touch();
+    }
+
+    public void RemoveAssignment()
+    {
+        if (AssignedToUserId.HasValue)
+        {
+            AssignedToUserId = null;
+            Touch();
+        }
     }
 
     private void Touch()

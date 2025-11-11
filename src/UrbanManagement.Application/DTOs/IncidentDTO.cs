@@ -9,6 +9,7 @@ public record IncidentDto(
     string Description,
     string AreaCode,
     string Status,
+    Guid? AssignedToUserId,
     DateTime CreatedAt,
     DateTime? UpdatedAt)
 {
@@ -25,6 +26,7 @@ public record IncidentDto(
             incident.Description,
             incident.AreaCode,
             incident.Status,
+            incident.AssignedToUserId,
             incident.CreatedAt,
             incident.UpdatedAt);
     }
